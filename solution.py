@@ -90,52 +90,78 @@ class BassetDataset(Dataset):
         Answer to Q1 part 2
         """
         # WRITE CODE HERE
-        return 0
+        return self.inputs.shape[-1]
 
     def is_equivalent(self):
         """
         Answer to Q1 part 3
         """
         # WRITE CODE HERE
-        return 0
+        return False
 
 
-# class Basset(nn.Module):
-#     """
-#     Basset model
-#     Architecture specifications can be found in the supplementary material
-#     You will also need to use some Convolution Arithmetic
-#     """
-#
-#     def __init__(self):
-#         super(Basset, self).__init__()
-#
-#         self.dropout = ?
-#         self.num_cell_types = 164
-#
-#         self.conv1 = nn.Conv2d(1, 300, (19, ?), stride=(1, 1), padding=(9, 0))
-#         self.conv2 = nn.Conv2d(300, ?, (?, 1), stride=(1, 1), padding=(?, 0))
-#         self.conv3 = nn.Conv2d(?, 200, (?, 1), stride=(1, 1), padding=(4, 0))
-#
-#         self.bn1 = nn.BatchNorm2d(300)
-#         self.bn2 = nn.BatchNorm2d(?)
-#         self.bn3 = nn.BatchNorm2d(200)
-#         self.maxpool1 = nn.MaxPool2d((3, 1))
-#         self.maxpool2 = nn.MaxPool2d((?, 1))
-#         self.maxpool3 = nn.MaxPool2d((?, 1))
-#
-#         self.fc1 = nn.Linear(13*200, ?)
-#         self.bn4 = nn.BatchNorm1d(?)
-#
-#         self.fc2 = nn.Linear(1000, ?)
-#         self.bn5 = nn.BatchNorm1d(?)
-#
-#         self.fc3 = nn.Linear(?, self.num_cell_types)
+class Basset(nn.Module):
+    """
+    Basset model
+    Architecture specifications can be found in the supplementary material
+    You will also need to use some Convolution Arithmetic
+    """
+
+    def __init__(self):
+        super(Basset, self).__init__()
+
+        self.dropout = 0.3
+        self.num_cell_types = 164
+
+        self.conv1 = nn.Conv2d(1, 300, (19, 1), stride=(1, 1), padding=(9, 0))
+        self.conv2 = nn.Conv2d(300, 200, (11, 1), stride=(1, 1), padding=(5, 0))
+        self.conv3 = nn.Conv2d(200, 200, (7, 1), stride=(1, 1), padding=(4, 0))
+
+        self.bn1 = nn.BatchNorm2d(300)
+        self.bn2 = nn.BatchNorm2d(200)
+        self.bn3 = nn.BatchNorm2d(200)
+        self.maxpool1 = nn.MaxPool2d((3, 1))
+        self.maxpool2 = nn.MaxPool2d((4, 1))
+        self.maxpool3 = nn.MaxPool2d((4, 1))
+
+        self.fc1 = nn.Linear(13*200, 1000)
+        self.bn4 = nn.BatchNorm1d(1000)
+
+        self.fc2 = nn.Linear(1000, 164)
+        self.bn5 = nn.BatchNorm1d(164)
+
+        self.fc3 = nn.Linear(164, self.num_cell_types)
 
     def forward(self, x):
 
-        # WRITE CODE HERE
-        return 0
+        model = nn.Sequential(
+            self.conv1,
+            self.bn1,
+            nn.ReLU(),
+            self.maxpool1,
+
+            self.conv2,
+            self.bn2,
+            nn.ReLU(),
+            self.maxpool2,
+
+            self.conv3,
+            self.bn3,
+            nn.ReLU(),
+            self.maxpool3,
+
+            self.fc1,
+            nn.ReLU(),
+            nn.Dropout(p=self.dropout),
+
+            self.fc2,
+            nn.ReLU(),
+            nn.Dropout(p=self.dropout),
+
+            self.fc3
+        )
+
+        return model(x)
 
 
 def compute_fpr_tpr(y_true, y_pred):

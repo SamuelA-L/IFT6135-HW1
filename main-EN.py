@@ -135,23 +135,25 @@ basset_dataset_valid = solution.BassetDataset(path='./content/A1', f5name='er.h5
 basset_dataset_test = solution.BassetDataset(path='./content/A1', f5name='er.h5', split='test')
 
 
-test = basset_dataset_train.__len__()
-
-# basset_dataloader_train = DataLoader(basset_dataset_train,
-#                                      batch_size=batch_size,
-#                                      drop_last=True,
-#                                      shuffle=True,
-#                                      num_workers=1)
-# basset_dataloader_valid = DataLoader(basset_dataset_valid,
-#                                      batch_size=batch_size,
-#                                      drop_last=True,
-#                                      shuffle=False,
-#                                      num_workers=1)
-# basset_dataloader_test = DataLoader(basset_dataset_test,
-#                                     batch_size=batch_size,
-#                                     drop_last=True,
-#                                     shuffle=False,
-#                                     num_workers=1)
+basset_dataloader_train = DataLoader(basset_dataset_train,
+                                     batch_size=batch_size,
+                                     drop_last=True,
+                                     shuffle=True,
+                                     num_workers=1)
+basset_dataloader_valid = DataLoader(basset_dataset_valid,
+                                     batch_size=batch_size,
+                                     drop_last=True,
+                                     shuffle=False,
+                                     num_workers=1)
+basset_dataloader_test = DataLoader(basset_dataset_test,
+                                    batch_size=batch_size,
+                                    drop_last=True,
+                                    shuffle=False,
+                                    num_workers=1)
+model = solution.Basset()
+sequence = basset_dataset_train.__getitem__(20)['sequence']
+tensor_sequence = torch.from_numpy(sequence)
+model.forward(tensor_sequence)
 
 
 # # # **Question 2 (Building the Network)**
