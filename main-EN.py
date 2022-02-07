@@ -151,8 +151,8 @@ basset_dataloader_test = DataLoader(basset_dataset_test,
                                     shuffle=False,
                                     num_workers=1)
 model = solution.Basset()
-sequence = basset_dataset_train.__getitem__(20)['sequence']
-tensor_sequence = torch.from_numpy(sequence).unsqueeze(0)
+tensor_sequence = basset_dataset_train.__getitem__(20)['sequence']
+tensor_sequence = tensor_sequence.unsqueeze(0)
 model.forward(tensor_sequence)
 
 

@@ -75,9 +75,11 @@ class BassetDataset(Dataset):
         output = {'sequence': None, 'target': None}
 
         # WRITE CODE HERE
-        output['target'] = self.outputs[idx]
+        output['target'] = torch.from_numpy(self.outputs[idx].astype(np.float32))
         sequence = self.inputs[idx].astype(np.float32)
-        output['sequence'] = np.moveaxis(sequence, 0, -1)
+        sequence = np.moveaxis(sequence, 0, -1)
+        output['sequence'] = torch.from_numpy(sequence)
+
         return output
 
     def __len__(self):
@@ -96,7 +98,7 @@ class BassetDataset(Dataset):
         Answer to Q1 part 3
         """
         # WRITE CODE HERE
-        return False
+        return True
 
 
 class Basset(nn.Module):
@@ -113,7 +115,7 @@ class Basset(nn.Module):
         self.num_cell_types = 164
 
         self.conv1 = nn.Conv2d(1, 300, (19, 4), stride=(1, 1), padding=(9, 0))
-        self.conv2 = nn.Conv2d(300, 200, (11, 1), stride=(1, 1), padding=(6, 0))
+        self.conv2 = nn.Conv2d(300, 200, (11, 1), stride=(1, 1), padding=(5, 0))
         self.conv3 = nn.Conv2d(200, 200, (7, 1), stride=(1, 1), padding=(4, 0))
 
         self.bn1 = nn.BatchNorm2d(300)
@@ -133,7 +135,7 @@ class Basset(nn.Module):
 
     def forward(self, x):
 
-        model = nn.Sequential(
+        cnn = nn.Sequential(
             self.conv1,
             self.bn1,
             nn.ReLU(),
@@ -147,21 +149,27 @@ class Basset(nn.Module):
             self.conv3,
             self.bn3,
             nn.ReLU(),
-            self.maxpool3,
+            self.maxpool3
 
-            nn.Flatten(),
+        )
+        fcn = nn.Sequential(
+
             self.fc1,
+            self.bn4,
             nn.ReLU(),
             nn.Dropout(p=self.dropout),
 
             self.fc2,
+            self.bn5,
             nn.ReLU(),
             nn.Dropout(p=self.dropout),
 
             self.fc3
         )
+        x = cnn(x)
+        x = fcn(x.view(x.shape[0], -1))
 
-        return model(x)
+        return x
 
 
 def compute_fpr_tpr(y_true, y_pred):
