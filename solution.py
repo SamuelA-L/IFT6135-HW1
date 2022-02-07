@@ -231,8 +231,8 @@ def compute_fpr_tpr(y_true, y_pred):
         elif y_true[i] == 0:
             n += 1
 
-    output['tpr'] = tp/p
-    output['fpr'] = fp/n
+    output['tpr'] = 0 if p == 0 else tp / p
+    output['fpr'] = 0 if n == 0 else fp/n
 
     return output
 
@@ -252,6 +252,15 @@ def compute_fpr_tpr_dumb_model():
              
     """
     output = {'fpr_list': [], 'tpr_list': []}
+
+    y_true = np.random.randint(low=0, high=2, size=1000)
+    y_prob_pred = np.random.uniform(low=0, high=1, size=1000)
+
+    for treshold in np.arange(0, 1.05, 0.05):
+        y_pred = (y_prob_pred > treshold).astype(int)
+        result = compute_fpr_tpr(y_true, y_pred)
+        output['fpr_list'].append(result['fpr'])
+        output['tpr_list'].append(result['tpr'])
 
     # WRITE CODE HERE
 

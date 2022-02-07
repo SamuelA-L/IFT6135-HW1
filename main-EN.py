@@ -150,10 +150,7 @@ basset_dataloader_test = DataLoader(basset_dataset_test,
                                     drop_last=True,
                                     shuffle=False,
                                     num_workers=1)
-model = solution.Basset()
-tensor_sequence = basset_dataset_train.__getitem__(20)['sequence']
-tensor_sequence = tensor_sequence.unsqueeze(0)
-model.forward(tensor_sequence)
+
 
 
 # # # **Question 2 (Building the Network)**
@@ -185,7 +182,7 @@ model = solution.Basset().to(device)
 # # In[ ]:
 #
 #
-# solution.compute_fpr_tpr_dumb_model()
+solution.compute_fpr_tpr_dumb_model()
 #
 #
 # # 3. We will now simulate a better model. In `solution.py`, fill in the function `compute_fpr_tpr_smart_model`. This will simulate 1000 targets the same way as before. However, this will simulate model outputs as uniform random variables between 0.4 and 1 for the positive cases. For the negative cases, simulate uniform random variables between 0 and 0.6. Compute the tpr and fpr varying $k$ like before. You should also look at the ROC curve.
