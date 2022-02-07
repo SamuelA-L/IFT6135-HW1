@@ -77,8 +77,7 @@ class BassetDataset(Dataset):
         # WRITE CODE HERE
         output['target'] = self.outputs[idx]
         sequence = self.inputs[idx].astype(np.float32)
-        output['sequence'] = np.moveaxis(sequence, 1, 0)
-
+        output['sequence'] = np.moveaxis(sequence, 0, -1)
         return output
 
     def __len__(self):
@@ -113,8 +112,8 @@ class Basset(nn.Module):
         self.dropout = 0.3
         self.num_cell_types = 164
 
-        self.conv1 = nn.Conv2d(1, 300, (19, 1), stride=(1, 1), padding=(9, 0))
-        self.conv2 = nn.Conv2d(300, 200, (11, 1), stride=(1, 1), padding=(5, 0))
+        self.conv1 = nn.Conv2d(1, 300, (19, 4), stride=(1, 1), padding=(9, 0))
+        self.conv2 = nn.Conv2d(300, 200, (11, 1), stride=(1, 1), padding=(6, 0))
         self.conv3 = nn.Conv2d(200, 200, (7, 1), stride=(1, 1), padding=(4, 0))
 
         self.bn1 = nn.BatchNorm2d(300)
@@ -127,10 +126,10 @@ class Basset(nn.Module):
         self.fc1 = nn.Linear(13*200, 1000)
         self.bn4 = nn.BatchNorm1d(1000)
 
-        self.fc2 = nn.Linear(1000, 164)
-        self.bn5 = nn.BatchNorm1d(164)
+        self.fc2 = nn.Linear(1000, 1000)
+        self.bn5 = nn.BatchNorm1d(1000)
 
-        self.fc3 = nn.Linear(164, self.num_cell_types)
+        self.fc3 = nn.Linear(1000, self.num_cell_types)
 
     def forward(self, x):
 
@@ -150,6 +149,7 @@ class Basset(nn.Module):
             nn.ReLU(),
             self.maxpool3,
 
+            nn.Flatten(),
             self.fc1,
             nn.ReLU(),
             nn.Dropout(p=self.dropout),
