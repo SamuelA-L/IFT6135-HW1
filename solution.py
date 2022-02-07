@@ -215,6 +215,24 @@ def compute_fpr_tpr(y_true, y_pred):
     output = {'fpr': 0., 'tpr': 0.}
 
     # WRITE CODE HERE
+    tp = 0
+    fp = 0
+    p = 0
+    n = 0
+
+    for i in range(len(y_true)):
+        if y_true[i] == 1 and y_pred[i] == 1:
+            tp += 1
+        elif y_true[i] == 0 and y_pred[i] == 1:
+            fp += 1
+
+        if y_true[i] == 1:
+            p += 1
+        elif y_true[i] == 0:
+            n += 1
+
+    output['tpr'] = tp/p
+    output['fpr'] = fp/n
 
     return output
 
