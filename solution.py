@@ -133,41 +133,72 @@ class Basset(nn.Module):
 
         self.fc3 = nn.Linear(1000, self.num_cell_types)
 
+        self.drop1 = nn.Dropout(p=self.dropout)
+        self.drop2 = nn.Dropout(p=self.dropout)
+
     def forward(self, x):
 
-        cnn = nn.Sequential(
-            self.conv1,
-            self.bn1,
-            nn.ReLU(),
-            self.maxpool1,
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = F.relu(x)
+        x = self.maxpool1(x)
 
-            self.conv2,
-            self.bn2,
-            nn.ReLU(),
-            self.maxpool2,
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = F.relu(x)
+        x = self.maxpool2(x)
 
-            self.conv3,
-            self.bn3,
-            nn.ReLU(),
-            self.maxpool3
+        x = self.conv3(x)
+        x = self.bn3(x)
+        x = F.relu(x)
+        x = self.maxpool3(x)
 
-        )
-        fcn = nn.Sequential(
+        x = self.fc1(x.view(x.shape[0], -1))
+        x = self.bn4(x)
+        x = F.relu(x)
+        x = self.drop1(x)
 
-            self.fc1,
-            self.bn4,
-            nn.ReLU(),
-            nn.Dropout(p=self.dropout),
+        x = self.fc2(x)
+        x = self.bn5(x)
+        x = F.relu(x)
+        x = self.drop2(x)
 
-            self.fc2,
-            self.bn5,
-            nn.ReLU(),
-            nn.Dropout(p=self.dropout),
+        x = self.fc3(x)
 
-            self.fc3
-        )
-        x = cnn(x)
-        x = fcn(x.view(x.shape[0], -1))
+
+        # cnn = nn.Sequential(
+        #     self.conv1,
+        #     self.bn1,
+        #     nn.ReLU(),
+        #     self.maxpool1,
+        #
+        #     self.conv2,
+        #     self.bn2,
+        #     nn.ReLU(),
+        #     self.maxpool2,
+        #
+        #     self.conv3,
+        #     self.bn3,
+        #     nn.ReLU(),
+        #     self.maxpool3
+        #
+        # )
+        # fcn = nn.Sequential(
+        #
+        #     self.fc1,
+        #     self.bn4,
+        #     nn.ReLU(),
+        #     nn.Dropout(p=self.dropout),
+        #
+        #     self.fc2,
+        #     self.bn5,
+        #     nn.ReLU(),
+        #     nn.Dropout(p=self.dropout),
+        #
+        #     self.fc3
+        # )
+        # x = cnn(x)
+        # x = fcn(x.view(x.shape[0], -1))
 
         return x
 
