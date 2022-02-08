@@ -282,7 +282,19 @@ def compute_fpr_tpr_smart_model():
     """
     output = {'fpr_list': [], 'tpr_list': []}
 
-    # WRITE CODE HERE
+    y_true = np.random.randint(low=0, high=2, size=1000)
+    y_prob_pred = np.zeros(1000)
+    for i, true in enumerate(y_true):
+        if true == 1:
+            y_prob_pred[i] = np.random.uniform(low=0.4, high=1.1)
+        elif true == 0:
+            y_prob_pred[i] = np.random.uniform(low=0, high=0.7)
+
+    for treshold in np.arange(0, 1.05, 0.05):
+        y_pred = (y_prob_pred > treshold).astype(int)
+        result = compute_fpr_tpr(y_true, y_pred)
+        output['fpr_list'].append(result['fpr'])
+        output['tpr_list'].append(result['tpr'])
 
     return output
 

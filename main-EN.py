@@ -190,7 +190,7 @@ solution.compute_fpr_tpr_dumb_model()
 # # In[ ]:
 #
 #
-# solution.compute_fpr_tpr_smart_model()
+solution.compute_fpr_tpr_smart_model()
 #
 #
 # # 4. The Area Under the ROC Curve (AUC) summarizes the ROC plot as a single number. It is literally computed as the area under the the ROC curve (take the average of the left and right Reimann sums). Complete the function `utils.compute_auc` and use it in the function `compute_auc_both_models` to compute the AUC of the ROC curves you made in parts 2 and 3.
