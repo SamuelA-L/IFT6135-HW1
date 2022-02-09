@@ -165,41 +165,6 @@ class Basset(nn.Module):
 
         x = self.fc3(x)
 
-
-        # cnn = nn.Sequential(
-        #     self.conv1,
-        #     self.bn1,
-        #     nn.ReLU(),
-        #     self.maxpool1,
-        #
-        #     self.conv2,
-        #     self.bn2,
-        #     nn.ReLU(),
-        #     self.maxpool2,
-        #
-        #     self.conv3,
-        #     self.bn3,
-        #     nn.ReLU(),
-        #     self.maxpool3
-        #
-        # )
-        # fcn = nn.Sequential(
-        #
-        #     self.fc1,
-        #     self.bn4,
-        #     nn.ReLU(),
-        #     nn.Dropout(p=self.dropout),
-        #
-        #     self.fc2,
-        #     self.bn5,
-        #     nn.ReLU(),
-        #     nn.Dropout(p=self.dropout),
-        #
-        #     self.fc3
-        # )
-        # x = cnn(x)
-        # x = fcn(x.view(x.shape[0], -1))
-
         return x
 
 
@@ -398,11 +363,11 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
         loss.backward()
         optimizer.step()
 
-    with torch.no_grad():
-        model_predictions = model(x)
-        for i in range(len(model_predictions)):
-            output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), model_predictions[i].cpu().detach().numpy())['auc']
-            output['total_loss'] += criterion(model_predictions[i].cpu().detach(), y[i].cpu().detach()).item()
+        with torch.no_grad():
+            model_predictions = model(x)
+            for i in range(len(model_predictions)):
+                output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), model_predictions[i].cpu().detach().numpy())['auc']
+                output['total_loss'] += criterion(model_predictions[i].cpu().detach(), y[i].cpu().detach()).item()
 
     return output['total_score'], output['total_loss']
 
@@ -429,5 +394,15 @@ def valid_loop(model, valid_dataloader, device, optimizer, criterion):
               'total_loss': 0.}
 
     # WRITE CODE HERE
+
+    for batch in valid_dataloader:
+        optimizer.zero_grad()
+        x, y = batch.values()
+
+        with torch.no_grad():
+            model_predictions = model(x)
+            for i in range(len(model_predictions)):
+                output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), model_predictions[i].cpu().detach().numpy())['auc']
+                output['total_loss'] += criterion(model_predictions[i].cpu().detach(), y[i].cpu().detach()).item()
 
     return output['total_score'], output['total_loss']
