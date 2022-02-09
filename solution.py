@@ -347,6 +347,7 @@ def compute_auc(y_true, y_model):
     ROC = compute_fpr_tpr(y_true, y_model)
 
     # TODO riemmans sums
+    output['auc'] = 2
 
     return output
 
@@ -358,11 +359,7 @@ def get_critereon():
     """
 
     # WRITE CODE HERE
-    # critereon = nn.BCELoss()
-    # critereon = nn.CrossEntropyLoss()
-    critereon = nn.NLLLoss()
-    # critereon = nn.BCEWithLogitsLoss
-
+    critereon = nn.BCEWithLogitsLoss()
 
     return critereon
 
@@ -393,18 +390,19 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
     for batch in train_dataloader:
 
         optimizer.zero_grad()
-        x, y = batch
-        # if torch.cuda.is_available():
-        #     x.cuda()
-        #     y.cuda()
+        x, y = batch.values()
+        x = x.to(device)
+        y = y.to(device)
 
-        loss = get_critereon(model(x), y)
+        loss = criterion(model(x), y)
         loss.backward()
         optimizer.step()
 
-    output['total_score'] += compute_auc(y, model(x))
-    output['total_loss'] = loss
-
+    with torch.no_grad():
+        model_predictions = model(x)
+        for i in range(len(model_predictions)):
+            output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), model_predictions[i].cpu().detach().numpy())['auc']
+            output['total_loss'] += criterion(model_predictions[i].cpu().detach(), y[i].cpu().detach()).item()
 
     return output['total_score'], output['total_loss']
 

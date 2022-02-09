@@ -212,32 +212,32 @@ criterion = solution.get_critereon()
 # #     Both loops must return the loss and AUC (computed the same way as the previous question). They must be returned by each function (see the docstring for more details).
 
 
-# optimizer = optim.Adam(list(model.parameters()), lr=learning_rate, betas=(0.9, 0.999))
-#
-# valid_score_best = 0
-# patience = 2
-# num_epochs = 5  # you don't need to train this for that long!
-#
-# for e in range(num_epochs):
-#     train_score, train_loss = solution.train_loop(model, basset_dataloader_train, device, optimizer, criterion)
-#     valid_score, valid_loss = solution.valid_loop(model, basset_dataloader_valid, device, optimizer, criterion)
-#
-#     print('epoch {}: loss={:.3f} score={:.3f}'.format(e,
-#                                                       valid_loss,
-#                                                       valid_score))
-#
-#     if valid_score > valid_score_best:
-#         print('Best score: {}. Saving model...'.format(valid_score))
-#         torch.save(model, 'model_params.pt')
-#         valid_score_best = valid_score
-#     else:
-#         patience -= 1
-#         print('Score did not improve! {} <= {}. Patience left: {}'.format(valid_score,
-#                                                                           valid_score_best,
-#                                                                           patience))
-#     if patience == 0:
-#         print('patience reduced to 0. Training Finished.')
-#         break
+optimizer = optim.Adam(list(model.parameters()), lr=learning_rate, betas=(0.9, 0.999))
+
+valid_score_best = 0
+patience = 2
+num_epochs = 2  # you don't need to train this for that long!
+
+for e in range(num_epochs):
+    train_score, train_loss = solution.train_loop(model, basset_dataloader_train, device, optimizer, criterion)
+    valid_score, valid_loss = solution.valid_loop(model, basset_dataloader_valid, device, optimizer, criterion)
+
+    print('epoch {}: loss={:.3f} score={:.3f}'.format(e,
+                                                      valid_loss,
+                                                      valid_score))
+
+    if valid_score > valid_score_best:
+        print('Best score: {}. Saving model...'.format(valid_score))
+        torch.save(model, 'model_params.pt')
+        valid_score_best = valid_score
+    else:
+        patience -= 1
+        print('Score did not improve! {} <= {}. Patience left: {}'.format(valid_score,
+                                                                          valid_score_best,
+                                                                          patience))
+    if patience == 0:
+        print('patience reduced to 0. Training Finished.')
+        break
 
 
 # # # **Question 5 (Interpreting the Model)**
