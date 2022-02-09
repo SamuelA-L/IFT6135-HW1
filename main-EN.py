@@ -2,12 +2,9 @@
 # coding: utf-8
 
 # # Genetics Application
-# 
+
 # For this set of questions, we will explore the use of Convolutional Neural Networks to solve a problem with Biological significance (don't worry, no background knowledge is expected). Every cell in your body contains Deoxyribonucleic acid (DNA), which is essentially the instructions for making all the proteins in your body. DNA can be thought of as a very long string where the alphabet is \{A,C,T,G\}.
 # The physical attributes of the DNA string and its characters are not important here, except that ~98% of our DNA is physically inaccessible to external molecules. Understanding which regions of DNA are accessible and why is of great interest to scientists. This motivates learning predictive models which could accurately classify such regions. In particular, we will be implementing the deep network called [Basset](https://pubmed.ncbi.nlm.nih.gov/27197224/).
-# 
-
-# In[ ]:
 
 
 #@title Mount your Google Drive
@@ -72,6 +69,9 @@ from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 
 import solution
+
+print("cuda available : ", torch.cuda.is_available())
+print("cuda device : ", torch.cuda.get_device_name(0))
 
 
 # In[ ]:
@@ -165,34 +165,35 @@ basset_dataloader_test = DataLoader(basset_dataset_test,
 #
 #
 model = solution.Basset().to(device)
-#
-#
-#
-# # # **Question 3 (Area Under the Curve)**
-# # (25 points). Each DNA sequence is either exposed (we'll call this the positive case) or not (we'll call this the negative case). The output of our model should be used to return a binary decision about the sequence.
-# #
-# # For a given case, we say that our model made a positive prediction whenever its output value is above some threshold $k$, and a negative prediction otherwise.
-# #
-# # Define the *True Positive Rate* (TPR) as the number of correctly prediced positive cases divided by the number of positive cases. Define the *False Positive Rate* (FPR) as the  number of cases that were incorrectly predicted as positive divided by the number of negative cases.
-# #
-# # 1. Complete the function `compute_fpr_tpr` in `solution.py`. This code will compute the TPR and FPR given your models decisions and the true targets.
-# #
-# # 2. Your FPR and TPR change as a function of $k$. Specifically, we can plot the FPR on the x-axis and the TPR on the y-axis for different values of $k$. The shape of the resulting curve (ROC curve) tells us something about our classifiers performance. We will explore via simulation what this plot looks like when our model is just making random guesses. In `solution.py`, fill in the function `compute_fpr_tpr_dumb_model`. This function will generate 1000 binary random variables to use as targets and 1000 uniform random variables between 0 and 1 as our model predictions. It will then compute the fpr and tpr for $k\in \{0, 0.05,..., 0.95, 1\}$ You should plot what the ROC curves look like for your own knowledge.
-#
-# # In[ ]:
-#
-#
-solution.compute_fpr_tpr_dumb_model()
-#
-#
+
+# # **Question 3 (Area Under the Curve)**
+# (25 points). Each DNA sequence is either exposed (we'll call this the positive case) or not (we'll call this the negative case). The output of our model should be used to return a binary decision about the sequence.
+# For a given case, we say that our model made a positive prediction whenever its output value is above some threshold $k$, and a negative prediction otherwise.
+# Define the *True Positive Rate* (TPR) as the number of correctly prediced positive cases divided by the number of positive cases. Define the *False Positive Rate* (FPR) as the  number of cases that were incorrectly predicted as positive divided by the number of negative cases.
+# 1. Complete the function `compute_fpr_tpr` in `solution.py`. This code will compute the TPR and FPR given your models decisions and the true targets.
+# 2. Your FPR and TPR change as a function of $k$. Specifically, we can plot the FPR on the x-axis and the TPR on the y-axis for different values of $k$. The shape of the resulting curve (ROC curve) tells us something about our classifiers performance. We will explore via simulation what this plot looks like when our model is just making random guesses. In `solution.py`, fill in the function `compute_fpr_tpr_dumb_model`. This function will generate 1000 binary random variables to use as targets and 1000 uniform random variables between 0 and 1 as our model predictions. It will then compute the fpr and tpr for $k\in \{0, 0.05,..., 0.95, 1\}$ You should plot what the ROC curves look like for your own knowledge.
+
+import matplotlib.pyplot as plt
+
+
+dumb_model = solution.compute_fpr_tpr_dumb_model()
+
+plt.plot(dumb_model['fpr_list'], dumb_model['tpr_list'])
+plt.title('Dumb model ROC')
+plt.ylabel('tpr')
+plt.xlabel('fpr')
+# plt.show()
+
 # # 3. We will now simulate a better model. In `solution.py`, fill in the function `compute_fpr_tpr_smart_model`. This will simulate 1000 targets the same way as before. However, this will simulate model outputs as uniform random variables between 0.4 and 1 for the positive cases. For the negative cases, simulate uniform random variables between 0 and 0.6. Compute the tpr and fpr varying $k$ like before. You should also look at the ROC curve.
-#
-# # In[ ]:
-#
-#
-solution.compute_fpr_tpr_smart_model()
-#
-#
+
+smart_model = solution.compute_fpr_tpr_smart_model()
+plt.plot(smart_model['fpr_list'], smart_model['tpr_list'])
+plt.title('Smart model ROC')
+plt.ylabel('tpr')
+plt.xlabel('fpr')
+# plt.show()
+
+
 # # 4. The Area Under the ROC Curve (AUC) summarizes the ROC plot as a single number. It is literally computed as the area under the the ROC curve (take the average of the left and right Reimann sums). Complete the function `utils.compute_auc` and use it in the function `compute_auc_both_models` to compute the AUC of the ROC curves you made in parts 2 and 3.
 #
 # # In[ ]:

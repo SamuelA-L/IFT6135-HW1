@@ -256,7 +256,7 @@ def compute_fpr_tpr_dumb_model():
     y_true = np.random.randint(low=0, high=2, size=1000)
     y_prob_pred = np.random.uniform(low=0, high=1, size=1000)
 
-    for treshold in np.arange(0, 1.05, 0.05):
+    for treshold in np.arange(0, 1., 0.05):
         y_pred = (y_prob_pred > treshold).astype(int)
         result = compute_fpr_tpr(y_true, y_pred)
         output['fpr_list'].append(result['fpr'])
@@ -290,7 +290,7 @@ def compute_fpr_tpr_smart_model():
         elif true == 0:
             y_prob_pred[i] = np.random.uniform(low=0, high=0.7)
 
-    for treshold in np.arange(0, 1.05, 0.05):
+    for treshold in np.arange(0, 1., 0.05):
         y_pred = (y_prob_pred > treshold).astype(int)
         result = compute_fpr_tpr(y_true, y_pred)
         output['fpr_list'].append(result['fpr'])
@@ -355,6 +355,10 @@ def get_critereon():
     """
 
     # WRITE CODE HERE
+    # critereon = nn.BCELoss()
+    # critereon = nn.CrossEntropyLoss()
+    critereon = nn.NLLLoss
+
 
     return critereon
 
