@@ -152,18 +152,13 @@ basset_dataloader_test = DataLoader(basset_dataset_test,
                                     num_workers=1)
 
 
-
 # # # **Question 2 (Building the Network)**
 # # (15 points). PyTorch also provides an abstraction for differentiable models: `torch.nn.Module`. In `solution.py`, we define Basset as a subclass of this class.
-# #
 # # 1. Fill in the missing values denoted as `?` within the class definition using [supplementary figure 13](https://genome.cshlp.org./content/suppl/2016/06/10/gr.200535.115.DC1/Supplementary_Figures.pdf) and convolution arithmetic.
 # # 2. Write the `forward` pass function. Again, please refer to [supplementary figure 13](https://genome.cshlp.org./content/suppl/2016/06/10/gr.200535.115.DC1/Supplementary_Figures.pdf).
-# #
 # #   Do not include any output activation in your forward method! In practice, it is better to use a loss function that has the output activation built-in.
-#
-# # In[ ]:
-#
-#
+
+
 model = solution.Basset().to(device)
 
 # # **Question 3 (Area Under the Curve)**
@@ -195,46 +190,28 @@ plt.xlabel('fpr')
 
 
 # # 4. The Area Under the ROC Curve (AUC) summarizes the ROC plot as a single number. It is literally computed as the area under the the ROC curve (take the average of the left and right Reimann sums). Complete the function `utils.compute_auc` and use it in the function `compute_auc_both_models` to compute the AUC of the ROC curves you made in parts 2 and 3.
-#
-# # In[ ]:
-#
-#
 # solution.compute_auc_both_models()
-#
-#
 # # 5. Complete the function `compute_auc_untrained_model`, which will compute the AUC of your untrained model. Use the first 100 batches of the test set.
-# #
 # #     Note: since we are doing multi-task prediction, your model outputs and targets will have shape (Batch size, Num targets). Flatten these matrices so that they are two vectors, each of size Batch size * Num targets.
 # #     Then, procede with AUC as if you were in the usual single task case...
-#
-# # In[ ]:
-#
-#
+
+
 # solution.compute_auc_untrained_model(model, basset_dataloader_test, device)
-#
-#
+
+
 # # # **Question 4 (Training the Network)**
 # # (20 points) We will now write the training loop for Basset.
-# #
 # # 1. Notice that for each input, we have one target per experiment, and each target is binary. Write the function `get_critereon`, which will pick the appropriate `loss` function.
-# #
 # #   Hint: you may consult the [relevant PyTorch documentation](https://pytorch.org/docs/stable/nn.html#loss-functions)
-# #
-# #
-#
-# # In[ ]:
-#
-#
-# criterion = solution.get_critereon()
-#
-#
+
+
+criterion = solution.get_critereon()
+
+
 # # 2. Finish the training loop by filling in the missing code for the `train_loop`  pass and `valid_loop` functions in `solution.py.`
-# #
 # #     Both loops must return the loss and AUC (computed the same way as the previous question). They must be returned by each function (see the docstring for more details).
-#
-# # In[ ]:
-#
-#
+
+
 # optimizer = optim.Adam(list(model.parameters()), lr=learning_rate, betas=(0.9, 0.999))
 #
 # valid_score_best = 0
@@ -261,31 +238,15 @@ plt.xlabel('fpr')
 #     if patience == 0:
 #         print('patience reduced to 0. Training Finished.')
 #         break
-#
-#
+
+
 # # # **Question 5 (Interpreting the Model)**
-# #
 # # (30 points) In real-world applications of deep learning, it is *crucial* that we verify that our models are learning what we expect them to learn. In this exercise, we will replicate a part of figure 3b from [Basset](https://pubmed.ncbi.nlm.nih.gov/27197224/).
-# #
 # # In genetics, there exists well known DNA *motifs*: short sequences which appear throughtout our DNA, and whose function are well documented. We expect that the filters of the first convolution layer should learn to identify some of these motifs in order to solve this task.
-# #
 # # **Please submit the answers to this exercise on a single paged PDF!**
-# #
 # # 1. First, we need to ensure that our model has learned something. Plot the ROC curve and compute the AUC of your model after training. Compare the ROC curves and the AUC before and after training with your simulated models. What do you notice?
-#
-# # 2. We represent motifs as position weight matrices (PWMs). This is a matrix of size $4$ $\times$ the motif length, where the $(i,j)$th entry is a count of how often base-pair $i$ occurs at position $j$. Open the PWM for the CTCF motif, which can be found in `MA0139.1.jaspar`. Normalize this matrix so that each column sums to $1$.
-#
-# # 3. In the methods section of the [paper](https://pubmed.ncbi.nlm.nih.gov/27197224/) (page 998), the authors describe how they converted each of the $300$ filters into normalized PWMs. First, for each filter, they determined the maximum activated value across the *dataset* (you may use a subset of the test set here). Compute these values.
-#
-# #
+# # 2. We represent motifs as position weight matrices (PWMs). This is a matrix of size $4$ $\times$ the motif length, where the $(i,j)$th entry is a count of how often base-pair $i$ occurs at position $j$. Open the PWM for the CTCF motif, which can be found in `MA0139.1.jaspar`. Normalize this matrix so that each column sums to $1$.# # 3. In the methods section of the [paper](https://pubmed.ncbi.nlm.nih.gov/27197224/) (page 998), the authors describe how they converted each of the $300$ filters into normalized PWMs. First, for each filter, they determined the maximum activated value across the *dataset* (you may use a subset of the test set here). Compute these values.
 # # 4. Next, they counted the base-pair occurrences in the set of sequences that activate the filter to a value that is more than half of its maximum value.
-# #
 # #   Note: You should use `torch.functional.unfold`.
-#
 # # 5. Given your 300 PWMs derived from your convolution filters, check to see if any of them are similar to the PWM for CTCF. You could quantify the similarity using *Pearson Correlation Coefficient*. Make a visualization of the PWM of the CTCF motif along with the most similar ones learned from the network.
-#
-# # In[ ]:
-#
-
-
 
