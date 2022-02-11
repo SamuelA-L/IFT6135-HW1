@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-
+# from tqdm import tqdm
 
 class BassetDataset(Dataset):
     """
@@ -308,7 +308,6 @@ def compute_auc_untrained_model(model, dataloader, device):
     y_true = []
     y_pred = []
 
-    # from tqdm import tqdm
     # for batch in tqdm(dataloader):
     for batch in dataloader:
 
@@ -390,10 +389,13 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
     model.train()
     n_batches = len(train_dataloader)
 
-    # from tqdm import tqdm
+    batch_pred = []
+    batch_true = []
+    counter = 0
     # for batch in tqdm(train_dataloader):
     for batch in train_dataloader:
 
+        counter += 1
         optimizer.zero_grad()
         x, y = batch.values()
         x = x.to(device)
@@ -409,9 +411,16 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
         with torch.no_grad():
             output['total_loss'] += loss.sum().data.cpu().numpy() * n_examples
             predictions = torch.sigmoid(model_output)
-            output['total_score'] += compute_auc(y.view(-1).cpu().detach().numpy(), predictions.view(-1).cpu().detach().numpy())['auc']
+            batch_pred.extend(predictions.view(-1).cpu().numpy())
+            batch_true.extend(y.view(-1).cpu().numpy())
 
-    output['total_score'] = output['total_score'] / n_batches
+            if counter == 50:
+                y_true = np.array(batch_true, dtype=np.int)
+                y_pred = np.array(batch_pred)
+                output['total_score'] += compute_auc(y_true, y_pred)['auc']
+                output['total_score'] = output['total_score'] / n_batches
+
+
 
 
     return output['total_score'], output['total_loss']

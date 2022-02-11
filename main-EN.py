@@ -199,7 +199,7 @@ value = solution.compute_auc_both_models()
 # #     Then, procede with AUC as if you were in the usual single task case...
 
 
-solution.compute_auc_untrained_model(model, basset_dataloader_test, device)
+# solution.compute_auc_untrained_model(model, basset_dataloader_test, device)
 
 
 # # # **Question 4 (Training the Network)**
