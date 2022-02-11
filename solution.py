@@ -308,9 +308,6 @@ def compute_auc_untrained_model(model, dataloader, device):
 
     # WRITE CODE HERE
     model.eval()
-    n_batches = len(dataloader)
-    print(n_batches)
-
     y_true = []
     y_pred = []
 
@@ -320,19 +317,12 @@ def compute_auc_untrained_model(model, dataloader, device):
 
         x, y = batch.values()
         x = x.to(device)
-        y = y.to(device)
         model_output = model(x)
         predictions = torch.sigmoid(model_output)
-        y_true += torch.flatten(predictions).cpu().detach()
-        y_pred += torch.flatten(y).cpu().detach()
+        y_true.extend(y.view(-1).cpu().numpy())
+        y_pred.extend(predictions.view(-1).cpu().detach().numpy())
 
-        # breakpoint()
-        # with torch.no_grad():
-            # for i in range(len(predictions)):
-            #     output['auc'] += compute_auc(y[i].cpu().detach().numpy(), predictions[i].cpu().detach().numpy())['auc']
-
-    # output['auc'] = compute_auc(np.array(y_true), np.array(y_pred))['auc']
-    output = compute_auc(np.array(y_true), np.array(y_pred))['auc']
+    output = compute_auc(np.array(y_true, dtype=np.int), np.array(y_pred))
 
     return output
 
@@ -398,31 +388,31 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
 
     # WRITE CODE HERE
 
-    model.train()
-    n_batches = len(train_dataloader)
-
-    # from tqdm import tqdm
-    # for batch in tqdm(train_dataloader):
-    for batch in train_dataloader:
-
-        optimizer.zero_grad()
-        x, y = batch.values()
-        x = x.to(device)
-        y = y.to(device)
-
-        model_output = model(x)
-        loss = criterion(model_output, y)
-        loss.backward()
-        optimizer.step()
-
-        n_examples = len(y)
-
-        with torch.no_grad():
-            output['total_loss'] += loss.sum().data.cpu().numpy() * n_examples
-            predictions = torch.sigmoid(model_output)
-            output['total_score'] += compute_auc(y.view(-1).cpu().detach().numpy(), predictions.view(-1).cpu().detach().numpy())['auc']
-
-    output['total_score'] = output['total_score'] / n_batches
+    # model.train()
+    # n_batches = len(train_dataloader)
+    #
+    # # from tqdm import tqdm
+    # # for batch in tqdm(train_dataloader):
+    # for batch in train_dataloader:
+    #
+    #     optimizer.zero_grad()
+    #     x, y = batch.values()
+    #     x = x.to(device)
+    #     y = y.to(device)
+    #
+    #     model_output = model(x)
+    #     loss = criterion(model_output, y)
+    #     loss.backward()
+    #     optimizer.step()
+    #
+    #     n_examples = len(y)
+    #
+    #     with torch.no_grad():
+    #         output['total_loss'] += loss.sum().data.cpu().numpy() * n_examples
+    #         predictions = torch.sigmoid(model_output)
+    #         output['total_score'] += compute_auc(y.view(-1).cpu().detach().numpy(), predictions.view(-1).cpu().detach().numpy())['auc']
+    #
+    # output['total_score'] = output['total_score'] / n_batches
 
 
     return output['total_score'], output['total_loss']
@@ -450,25 +440,25 @@ def valid_loop(model, valid_dataloader, device, optimizer, criterion):
               'total_loss': 0.}
 
     # WRITE CODE HERE
-    model.eval()
-    n_batches = len(valid_dataloader)
-    for batch in valid_dataloader:
-
-        optimizer.zero_grad()
-        x, y = batch.values()
-        x = x.to(device)
-        y = y.to(device)
-
-        model_output = model(x)
-        loss = criterion(model_output, y)
-
-        n_examples = len(y)
-
-        with torch.no_grad():
-            output['total_loss'] += loss.sum().data.cpu().numpy() * n_examples
-            predictions = torch.sigmoid(model_output)
-            output['total_score'] += compute_auc(y.view(-1).cpu().detach().numpy(), predictions.view(-1).cpu().detach().numpy())['auc']
-
-    output['total_score'] = output['total_score'] / n_batches
+    # model.eval()
+    # n_batches = len(valid_dataloader)
+    # for batch in valid_dataloader:
+    #
+    #     optimizer.zero_grad()
+    #     x, y = batch.values()
+    #     x = x.to(device)
+    #     y = y.to(device)
+    #
+    #     model_output = model(x)
+    #     loss = criterion(model_output, y)
+    #
+    #     n_examples = len(y)
+    #
+    #     with torch.no_grad():
+    #         output['total_loss'] += loss.sum().data.cpu().numpy() * n_examples
+    #         predictions = torch.sigmoid(model_output)
+    #         output['total_score'] += compute_auc(y.view(-1).cpu().detach().numpy(), predictions.view(-1).cpu().detach().numpy())['auc']
+    #
+    # output['total_score'] = output['total_score'] / n_batches
 
     return output['total_score'], output['total_loss']

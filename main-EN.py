@@ -199,7 +199,7 @@ value = solution.compute_auc_both_models()
 # #     Then, procede with AUC as if you were in the usual single task case...
 
 
-# solution.compute_auc_untrained_model(model, basset_dataloader_test, device)
+solution.compute_auc_untrained_model(model, basset_dataloader_test, device)
 
 
 # # # **Question 4 (Training the Network)**
@@ -219,7 +219,7 @@ optimizer = optim.Adam(list(model.parameters()), lr=learning_rate, betas=(0.9, 0
 
 valid_score_best = 0
 patience = 2
-num_epochs = 2  # you don't need to train this for that long!
+num_epochs = 5  # you don't need to train this for that long!
 
 for e in range(num_epochs):
     train_score, train_loss = solution.train_loop(model, basset_dataloader_train, device, optimizer, criterion)
