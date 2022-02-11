@@ -305,8 +305,22 @@ def compute_auc_untrained_model(model, dataloader, device):
     output = {'auc': 0.}
 
     # WRITE CODE HERE
+    model.eval()
+    n_batches = len(dataloader)
 
+    for batch in dataloader:
 
+        x, y = batch.values()
+        x = x.to(device)
+        y = y.to(device)
+        model_output = model(x)
+        predictions = torch.sigmoid(model_output)
+
+        with torch.no_grad():
+            for i in range(len(predictions)):
+                output['auc'] += compute_auc(y[i].cpu().detach().numpy(), predictions[i].cpu().detach().numpy())['auc']
+
+    output['auc'] = output['auc'] / n_batches
 
     return output
 
@@ -331,11 +345,8 @@ def compute_auc(y_true, y_model):
         fpr_list.append(result['fpr'])
         tpr_list.append(result['tpr'])
 
-    dx = 0.05
-    left_sum = np.sum(np.array([tpr * dx for tpr in tpr_list[:-1]]))
-    right_sum = np.sum(np.array([tpr * dx for tpr in tpr_list[1:]]))
-
-    output['auc'] = (left_sum + right_sum) / 2
+    auc = np.trapz(tpr_list, fpr_list)
+    output['auc'] = np.abs(auc)
 
     return output
 
@@ -375,6 +386,9 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
 
     # WRITE CODE HERE
 
+    model.train()
+    n_batches = len(train_dataloader)
+
     for batch in train_dataloader:
 
         optimizer.zero_grad()
@@ -392,6 +406,8 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
             predictions = torch.sigmoid(model_output)
             for i in range(len(predictions)):
                 output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), predictions[i].cpu().detach().numpy())['auc']
+
+    output['total_score'] = output['total_score'] / n_batches
 
     return output['total_score'], output['total_loss']
 
@@ -418,7 +434,8 @@ def valid_loop(model, valid_dataloader, device, optimizer, criterion):
               'total_loss': 0.}
 
     # WRITE CODE HERE
-
+    model.eval()
+    n_batches = len(valid_dataloader)
     for batch in valid_dataloader:
 
         optimizer.zero_grad()
@@ -434,5 +451,7 @@ def valid_loop(model, valid_dataloader, device, optimizer, criterion):
             predictions = torch.sigmoid(model_output)
             for i in range(len(predictions)):
                 output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), predictions[i].cpu().detach().numpy())['auc']
+
+    output['total_score'] = output['total_score'] / n_batches
 
     return output['total_score'], output['total_loss']

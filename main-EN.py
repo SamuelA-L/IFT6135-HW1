@@ -85,8 +85,8 @@ learning_rate = 0.002
 # In[ ]:
 
 
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = torch.device('cpu')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device('cpu')
 
 # set RNG
 seed = 42
