@@ -275,6 +275,17 @@ def compute_auc_both_models():
     output = {'auc_dumb_model': 0., 'auc_smart_model': 0.}
 
     # WRITE CODE HERE
+    y_true = np.random.randint(low=0, high=2, size=1000)
+    y_pred_dumb = np.random.uniform(low=0, high=1, size=1000)
+    y_pred_smart = np.zeros(1000)
+    for i, true in enumerate(y_true):
+        if true == 1:
+            y_pred_smart[i] = np.random.uniform(low=0.4, high=1.1)
+        elif true == 0:
+            y_pred_smart[i] = np.random.uniform(low=0, high=0.7)
+
+    output['auc_dumb_model'] = compute_auc(y_true, y_pred_dumb)['auc']
+    output['auc_smart_model'] = compute_auc(y_true, y_pred_smart)['auc']
 
     return output
 
@@ -295,6 +306,8 @@ def compute_auc_untrained_model(model, dataloader, device):
 
     # WRITE CODE HERE
 
+
+
     return output
 
 
@@ -304,15 +317,25 @@ def compute_auc(y_true, y_model):
     auc returned should be float
     Args:
         :param y_true: groundtruth labels (np.array of ints)
-        :param y_pred: model decisions (np.array of ints)
+        :param y_pred: model decisions (np.array of floats32)
     """
     output = {'auc': 0.}
 
     # WRITE CODE HERE
-    ROC = compute_fpr_tpr(y_true, y_model)
+    fpr_list = []
+    tpr_list = []
 
-    # TODO riemmans sums
-    output['auc'] = 2
+    for treshold in np.arange(0, 1., 0.05):
+        y_pred = (y_model > treshold).astype(int)
+        result = compute_fpr_tpr(y_true, y_pred)
+        fpr_list.append(result['fpr'])
+        tpr_list.append(result['tpr'])
+
+    dx = 0.05
+    left_sum = np.sum(np.array([tpr * dx for tpr in tpr_list[:-1]]))
+    right_sum = np.sum(np.array([tpr * dx for tpr in tpr_list[1:]]))
+
+    output['auc'] = (left_sum + right_sum) / 2
 
     return output
 
@@ -359,15 +382,16 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
         x = x.to(device)
         y = y.to(device)
 
-        loss = criterion(model(x), y)
+        model_output = model(x)
+        loss = criterion(model_output, y)
         loss.backward()
         optimizer.step()
 
         with torch.no_grad():
-            model_predictions = model(x)
-            for i in range(len(model_predictions)):
-                output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), model_predictions[i].cpu().detach().numpy())['auc']
-                output['total_loss'] += criterion(model_predictions[i].cpu().detach(), y[i].cpu().detach()).item()
+            output['total_loss'] += loss.item()
+            predictions = torch.sigmoid(model_output)
+            for i in range(len(predictions)):
+                output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), predictions[i].cpu().detach().numpy())['auc']
 
     return output['total_score'], output['total_loss']
 
@@ -396,13 +420,19 @@ def valid_loop(model, valid_dataloader, device, optimizer, criterion):
     # WRITE CODE HERE
 
     for batch in valid_dataloader:
+
         optimizer.zero_grad()
         x, y = batch.values()
+        x = x.to(device)
+        y = y.to(device)
+
+        model_output = model(x)
+        loss = criterion(model_output, y)
 
         with torch.no_grad():
-            model_predictions = model(x)
-            for i in range(len(model_predictions)):
-                output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), model_predictions[i].cpu().detach().numpy())['auc']
-                output['total_loss'] += criterion(model_predictions[i].cpu().detach(), y[i].cpu().detach()).item()
+            output['total_loss'] += loss.item()
+            predictions = torch.sigmoid(model_output)
+            for i in range(len(predictions)):
+                output['total_score'] += compute_auc(y[i].cpu().detach().numpy(), predictions[i].cpu().detach().numpy())['auc']
 
     return output['total_score'], output['total_loss']

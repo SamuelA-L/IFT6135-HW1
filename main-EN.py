@@ -85,7 +85,8 @@ learning_rate = 0.002
 # In[ ]:
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device('cpu')
 
 # set RNG
 seed = 42
@@ -190,7 +191,9 @@ plt.xlabel('fpr')
 
 
 # # 4. The Area Under the ROC Curve (AUC) summarizes the ROC plot as a single number. It is literally computed as the area under the the ROC curve (take the average of the left and right Reimann sums). Complete the function `utils.compute_auc` and use it in the function `compute_auc_both_models` to compute the AUC of the ROC curves you made in parts 2 and 3.
-# solution.compute_auc_both_models()
+
+value = solution.compute_auc_both_models()
+
 # # 5. Complete the function `compute_auc_untrained_model`, which will compute the AUC of your untrained model. Use the first 100 batches of the test set.
 # #     Note: since we are doing multi-task prediction, your model outputs and targets will have shape (Batch size, Num targets). Flatten these matrices so that they are two vectors, each of size Batch size * Num targets.
 # #     Then, procede with AUC as if you were in the usual single task case...
