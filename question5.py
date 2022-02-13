@@ -92,10 +92,8 @@ def q1():
         y_untrained_pred = np.append(y_untrained_pred, untrained_output.cpu().detach().numpy())
         y_true = np.append(y_true, y.numpy()).astype(int)
 
-
     trained_tpr, trained_fpr = compute_fpr_tpr_list(y_true, y_trained_pred)
     untrained_tpr, untrained_fpr = compute_fpr_tpr_list(y_true, y_untrained_pred)
-
 
     plot_roc(trained_tpr, trained_fpr, 'Trained Model')
     plot_roc(untrained_tpr, untrained_fpr, 'Untrained Model')
@@ -106,17 +104,15 @@ def q1():
 
 # # 2. We represent motifs as position weight matrices (PWMs). This is a matrix of size $4$ $\times$ the motif length,
 # where the $(i,j)$th entry is a count of how often base-pair $i$ occurs at position $j$. Open the PWM for the CTCF
-# motif, which can be found in `MA0139.1.jaspar`. Normalize this matrix so that each column sums to $1$.# # 3. In the
-# methods section of the [paper](https://pubmed.ncbi.nlm.nih.gov/27197224/) (page 998), the authors describe how they
-# converted each of the $300$ filters into normalized PWMs. First, for each filter, they determined the maximum\
-# activated value across the *dataset*(you may use a subset of the test set here). Compute these values.
+# motif, which can be found in `MA0139.1.jaspar`. Normalize this matrix so that each column sums to $1$.#
 
 A = [ 87, 167, 281,  56,   8, 744,  40, 107, 851,   5, 333,  54,  12,  56, 104, 372,  82, 117, 402]
 C = [291, 145,  49, 800, 903,  13, 528, 433,  11,   0,   3,  12,   0,   8, 733,  13, 482, 322, 181]
 G = [ 76, 414, 449,  21,   0,  65, 334,  48,  32, 903, 566, 504, 890, 775,   5, 507, 307,  73, 266]
 T = [459, 187, 134,  36,   2,  91,  11, 324,  18,   3,   9, 341,   8,  71,  67,  17,  37, 396,  59]
 
-def q2() :
+
+def q2():
     full_matrix = np.array([A, C, G, T])
 
     full_matrix = full_matrix/full_matrix.sum(axis=0, keepdims=1)
@@ -124,11 +120,42 @@ def q2() :
     plt.title('Normalized PWM for the CTCF motif')
     plt.colorbar()
     plt.show()
-    print('')
+
+# 3. In the
+# methods section of the [paper](https://pubmed.ncbi.nlm.nih.gov/27197224/) (page 998), the authors describe how they
+# converted each of the $300$ filters into normalized PWMs. First, for each filter, they determined the maximum\
+# activated value across the *dataset*(you may use a subset of the test set here). Compute these values.
+
+
+batch_size = 1
+learning_rate = 0.002
+
+basset_dataset_test = solution.BassetDataset(path='./content/A1', f5name='er.h5', split='test')
+
+basset_dataloader_test = DataLoader(basset_dataset_test,
+                                    batch_size=batch_size,
+                                    drop_last=True,
+                                    shuffle=False,
+                                    num_workers=1)
+
+test = next(iter(basset_dataloader_test))
+x, y = test.values()
+x = x.to(device)
+model = torch.load('model_params.pt').to(device)
+model.eval()
+test = model.get_1st_conv_output_max(x)
+
+
 # # 4. Next, they counted the base-pair occurrences in the set of sequences that activate the filter to a value that is
 # more than half of its maximum value.
 # #   Note: You should use `torch.functional.unfold`.
 
+blocks = torch.nn.functional.unfold(x, (19, 4))
+# outputs =
+# for i in blocks:
+
+
+print(blocks.shape)
 # # 5. Given your 300 PWMs derived from your convolution filt
 
 

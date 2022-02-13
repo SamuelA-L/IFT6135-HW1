@@ -164,6 +164,13 @@ class Basset(nn.Module):
 
         return x
 
+    def get_1st_conv_output_max(self, input):
+        conv_output = self.conv1(input).cpu().detach().numpy()
+
+        return np.squeeze(np.amax(np.amax(conv_output, axis=2), axis=0))
+
+
+
 
 def compute_fpr_tpr(y_true, y_pred):
     """
