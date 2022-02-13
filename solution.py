@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-# from tqdm import tqdm
+from tqdm import tqdm
 
 class BassetDataset(Dataset):
     """
@@ -392,8 +392,9 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
     batch_pred = []
     batch_true = []
     counter = 0
-    # for batch in tqdm(train_dataloader):
-    for batch in train_dataloader:
+
+    for batch in tqdm(train_dataloader):
+    # for batch in train_dataloader:
 
         counter += 1
         optimizer.zero_grad()
@@ -410,18 +411,23 @@ def train_loop(model, train_dataloader, device, optimizer, criterion):
 
         with torch.no_grad():
             output['total_loss'] += loss.sum().data.cpu().numpy() * n_examples
-            predictions = torch.sigmoid(model_output)
-            batch_pred.extend(predictions.view(-1).cpu().numpy())
-            batch_true.extend(y.view(-1).cpu().numpy())
+            # predictions = torch.sigmoid(model_output)
+            # batch_pred.extend(predictions.view(-1).cpu().numpy())
+            # batch_true.extend(y.view(-1).cpu().numpy())
 
-            if counter == 50:
-                y_true = np.array(batch_true, dtype=np.int)
-                y_pred = np.array(batch_pred)
-                output['total_score'] += compute_auc(y_true, y_pred)['auc']
-                output['total_score'] = output['total_score'] / n_batches
+            # if counter == 50:
+            #     y_true = np.array(batch_true, dtype=np.int)
+            #     y_pred = np.array(batch_pred)
+            #     output['total_score'] += compute_auc(y_true, y_pred)['auc']
+            #     output['total_score'] = output['total_score'] / n_batches
+            #     batch_pred = []
+            #     batch_true = []
+            #     counter = 0
 
-
-
+    # y_true = np.array(batch_true, dtype=np.int)
+    # y_pred = np.array(batch_pred)
+    # output['total_score'] += compute_auc(y_true, y_pred)['auc']
+    # output['total_score'] = output['total_score'] / n_batches
 
     return output['total_score'], output['total_loss']
 

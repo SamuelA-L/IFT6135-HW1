@@ -178,7 +178,7 @@ plt.plot(dumb_model['fpr_list'], dumb_model['tpr_list'])
 plt.title('Dumb model ROC')
 plt.ylabel('tpr')
 plt.xlabel('fpr')
-# plt.show()
+plt.show()
 
 # # 3. We will now simulate a better model. In `solution.py`, fill in the function `compute_fpr_tpr_smart_model`. This will simulate 1000 targets the same way as before. However, this will simulate model outputs as uniform random variables between 0.4 and 1 for the positive cases. For the negative cases, simulate uniform random variables between 0 and 0.6. Compute the tpr and fpr varying $k$ like before. You should also look at the ROC curve.
 
@@ -187,7 +187,7 @@ plt.plot(smart_model['fpr_list'], smart_model['tpr_list'])
 plt.title('Smart model ROC')
 plt.ylabel('tpr')
 plt.xlabel('fpr')
-# plt.show()
+plt.show()
 
 
 # # 4. The Area Under the ROC Curve (AUC) summarizes the ROC plot as a single number. It is literally computed as the area under the the ROC curve (take the average of the left and right Reimann sums). Complete the function `utils.compute_auc` and use it in the function `compute_auc_both_models` to compute the AUC of the ROC curves you made in parts 2 and 3.
