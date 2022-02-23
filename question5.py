@@ -182,7 +182,7 @@ for i in range(n_filters):
     similarity[i] = np.sum(np.absolute(np.corrcoef(np.swapaxes(CTCF, 0, 1), filter_pwm_normalized[i])))
 
 
-plt.imshow(filter_pwm_normalized[similarity.argmax()].swapaxes(0, 1), cmap='viridis')
+plt.imshow((filter_pwm_normalized[similarity.argmax()].swapaxes(0, 1) + 0.25*CTCF), cmap='viridis')
 plt.title('Max similarity filter')
 plt.colorbar()
 plt.show()
