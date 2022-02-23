@@ -121,6 +121,10 @@ def q2():
     plt.colorbar()
     plt.show()
 
+    return full_matrix
+
+CTCF = q2()
+
 # 3. In the
 # methods section of the [paper](https://pubmed.ncbi.nlm.nih.gov/27197224/) (page 998), the authors describe how they
 # converted each of the $300$ filters into normalized PWMs. First, for each filter, they determined the maximum\
@@ -165,10 +169,25 @@ for i in range(blocks.shape[2]):
         if activation > kernel_max[j]/2:
             filter_pwm[j] += filters[j].squeeze()
 
-
+filter_pwm = np.absolute(filter_pwm)
 filter_pwm_normalized = filter_pwm/filter_pwm.sum(axis=2, keepdims=1)
 
 print()
 # # 5. Given your 300 PWMs derived from your convolution filt
 
+similarity = np.empty(n_filters)
 
+for i in range(n_filters):
+
+    similarity[i] = np.sum(np.absolute(np.corrcoef(np.swapaxes(CTCF, 0, 1), filter_pwm_normalized[i])))
+
+
+plt.imshow(filter_pwm_normalized[similarity.argmax()].swapaxes(0, 1), cmap='viridis')
+plt.title('Max similarity filter')
+plt.colorbar()
+plt.show()
+
+plt.imshow(filter_pwm_normalized[similarity.argmin()].swapaxes(0, 1), cmap='viridis')
+plt.title('Min similarity filter')
+plt.colorbar()
+plt.show()
