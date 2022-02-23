@@ -169,7 +169,13 @@ class Basset(nn.Module):
 
         return np.squeeze(np.amax(np.amax(conv_output, axis=2), axis=0))
 
+    def get_1st_conv_output(self, input):
 
+        return self.conv1(input).cpu().detach().numpy()
+
+    def get_1st_conv_weights(self):
+
+        return self.conv1.weight.data.detach().cpu().numpy()
 
 
 def compute_fpr_tpr(y_true, y_pred):
