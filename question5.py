@@ -140,7 +140,6 @@ basset_dataloader_test = DataLoader(basset_dataset_test,
 
 test = next(iter(basset_dataloader_test))
 x, y = test.values()
-print(x.shape)
 x = x.to(device)
 model = torch.load('model_params.pt').to(device)
 model.eval()
@@ -152,11 +151,8 @@ kernel_max = model.get_1st_conv_output_max(x)
 # #   Note: You should use `torch.functional.unfold`.
 
 sequences = (x.transpose(2, 3))
-# blocks = torch.nn.functional.unfold(sequences, (4, 19))
 blocks = torch.nn.functional.unfold(x, (19, 4))
-
 filters = model.get_1st_conv_weights()
-# outputs = model.get_1st_conv_output(blocks.unsqueeze(0))
 
 n_filters = filters.shape[0]
 
@@ -165,12 +161,14 @@ filter_pwm = np.zeros((300, 19, 4))
 for i in range(blocks.shape[2]):
     for j in range(n_filters):
         input = blocks[:, :, i].reshape((19, 4)).cpu()
-        activation = torch.nn.functional.conv2d(input.unsqueeze(0).unsqueeze(0), torch.tensor(filters[j]).unsqueeze(0), padding=0, stride=1)
-        if activation > kernel_max[j]:
-            filter_pwm[j] += filters[j]
+        activation = torch.nn.functional.conv2d(input.unsqueeze(0).unsqueeze(0), torch.tensor(filters[j]).unsqueeze(0), padding=0, stride=1).item()
+        if activation > kernel_max[j]/2:
+            filter_pwm[j] += filters[j].squeeze()
 
 
-print(blocks.shape)
+filter_pwm_normalized = filter_pwm/filter_pwm.sum(axis=2, keepdims=1)
+
+print()
 # # 5. Given your 300 PWMs derived from your convolution filt
 
 
