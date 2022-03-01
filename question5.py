@@ -179,15 +179,24 @@ similarity = np.empty(n_filters)
 
 for i in range(n_filters):
 
-    similarity[i] = np.sum(np.absolute(np.corrcoef(np.swapaxes(CTCF, 0, 1), filter_pwm_normalized[i])))
+    similarity[i] = np.absolute(np.corrcoef(np.swapaxes(CTCF, 0, 1).flatten(), filter_pwm_normalized[i].flatten())[0,1])
 
 
-plt.imshow((filter_pwm_normalized[similarity.argmax()].swapaxes(0, 1) + 0.25*CTCF), cmap='viridis')
-plt.title('Max similarity filter')
+classification = np.sort(similarity)
+sorted_indices = np.argsort(similarity)
+print(classification[-10:-1])
+plt.imshow((filter_pwm_normalized[similarity.argmax()].swapaxes(0, 1)), cmap='viridis')
+plt.title('Most similar filter : ' + str(similarity.max()))
 plt.colorbar()
 plt.show()
 
+plt.imshow((filter_pwm_normalized[sorted_indices[-2]].swapaxes(0, 1)), cmap='viridis')
+plt.title('Second most similar filter :' + str(similarity[sorted_indices[-2]]))
+plt.colorbar()
+plt.show()
+
+print(classification[0])
 plt.imshow(filter_pwm_normalized[similarity.argmin()].swapaxes(0, 1), cmap='viridis')
-plt.title('Min similarity filter')
+plt.title('Min similarity filter : ' + str(similarity.min()))
 plt.colorbar()
 plt.show()
