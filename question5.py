@@ -142,11 +142,13 @@ basset_dataloader_test = DataLoader(basset_dataset_test,
                                     shuffle=False,
                                     num_workers=1)
 
+# kernel_max = np.zeros(300)
 test = next(iter(basset_dataloader_test))
 x, y = test.values()
 x = x.to(device)
 model = torch.load('model_params.pt').to(device)
 model.eval()
+# kernel_max = np.maximum(model.get_1st_conv_output_max(x), kernel_max)
 kernel_max = model.get_1st_conv_output_max(x)
 
 
@@ -155,7 +157,7 @@ kernel_max = model.get_1st_conv_output_max(x)
 # #   Note: You should use `torch.functional.unfold`.
 
 sequences = (x.transpose(2, 3))
-blocks = torch.nn.functional.unfold(x, (19, 4))
+blocks = torch.nn.functional.unfold(x, (19, 4), padding=(9, 0))
 filters = model.get_1st_conv_weights()
 
 n_filters = filters.shape[0]
